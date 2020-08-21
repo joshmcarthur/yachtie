@@ -1,0 +1,35 @@
+<form phx-change="control-input">
+  <fieldset>
+    <legend>Rudder control</legend>
+    <input
+      class="form-control-range"
+      type="range"
+      name="rudder[degrees]"
+      min="-20"
+      max="20"
+      step="1"
+      phx-change="rudder"
+      phx-throttle="500"
+      value="<%= @rudder %>"
+    />
+    <div class="form-help"><%= @rudder %> degrees</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Location</legend>
+    <div class="row">
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="latitude">Latitude:</label>
+          <input class="form-control" value="<%= @location && Map.get(@location, :latitude) %>" readonly />
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="longitude">Longitude:</label>
+          <input class="form-control" value="<%= @location && Map.get(@location, :longitude) %>" readonly />
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
