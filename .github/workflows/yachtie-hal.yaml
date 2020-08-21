@@ -12,4 +12,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install platformio
     - name: Compile project
-      run: platformio build
+      run: platformio run
+      working-directory: yachtie-hal

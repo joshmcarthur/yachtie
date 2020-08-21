@@ -1,0 +1,22 @@
+name: Yachtie Engine CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Elixir
+      run: wget https://packages.erlang-solutions.com/erlang/debian/pool/elixir_1.10.4-1~ubuntu~focal_all.deb && sudo dpkg -i 'elixir_1.10.4-1~ubuntu~focal_all.deb'
+    - name: Install hex
+      run: mix local.hex --force
+    - name: Install rebar
+      run: mix local.rebar --force
+    - name: Install dependencies
+      run: mix deps.get --only test
+      working-directory: yachtie-engine
+    - name: Check formatting
+      run: mix format --check-formatted
+      working-directory: yachtie-engine
+    - name: Run tests
+      run: mix test 
+      working-directory: yachtie-engine
