@@ -40,6 +40,7 @@ defmodule YachtieFirmware.MixProject do
     [
       # Dependencies for all targets
       {:nerves, "~> 1.6.0", runtime: false},
+      {:circuits_uart, "~> 1.3"},
       {:shoehorn, "~> 0.6"},
       {:ring_logger, "~> 0.6"},
       {:toolshed, "~> 0.2"},
