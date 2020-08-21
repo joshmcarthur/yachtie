@@ -1,5 +1,9 @@
 name: Yachtie HAL Compile
-on: [push]
+on:
+  push:
+    paths:
+      - .github/workflows/yachtie-hal.yaml
+      - yachtie-hal/**
 jobs:
   build:
     runs-on: ubuntu-latest

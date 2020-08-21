@@ -1,5 +1,9 @@
 name: Yachtie Engine CI
-on: [push]
+on:
+  push:
+    paths:
+      - .github/workflows/yachtie-engine.yaml
+      - yachtie-engine/**
 jobs:
   build:
     runs-on: ubuntu-latest

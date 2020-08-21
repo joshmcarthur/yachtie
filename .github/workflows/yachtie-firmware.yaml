@@ -1,5 +1,9 @@
 name: Yachtie Firmware CI
-on: [push]
+on:
+  push:
+    paths:
+      - .github/workflows/yachtie-firmware.yaml
+      - yachtie-firmware/**
 jobs:
   build:
     runs-on: ubuntu-latest
