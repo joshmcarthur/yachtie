@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "ArduinoJson.h"
 #include "DHT.h"
-#include "Servo.h"
-#include "SoftwareSerial.h"
+#include "ServoTimer2.h"
+#include "AltSoftSerial.h"
 #include "OneWire.h"
 #include "DallasTemperature.h"
 
@@ -11,31 +11,22 @@
 #define GPS_TX_PIN 4
 #define GPS_SERIAL_BAUD 9600
 #define ONEWIRE_BUS_PIN 11
-#define RUDDER_SERVO_PIN 10
-#define DHTTYPE DHT11
+#define RUDDER_SERVO_PIN 2
 
-// This is not compatible with Arduino's builtin serial monitor,
-// but we want to push JSON as fast as we can.
-#define SERIAL_BAUD 250000
+#define DHTTYPE DHT11
+#define RUDDER_RANGE_MIN -90L
+#define RUDDER_RANGE_MAX 90L
+
+#define SERIAL_BAUD 115200
 
 DHT dht(DHTPIN, DHTTYPE);
-Servo rudderServo;
-SoftwareSerial nss(GPS_RX_PIN, GPS_TX_PIN);
+ServoTimer2 rudderServo;
+AltSoftSerial gpsSerial;
 OneWire oneWire(ONEWIRE_BUS_PIN);
 DallasTemperature oneWireSensors(&oneWire);
 
-void dispatchCommand(const char* type, const char* value) {
-  if (strcmp(type, "rudder_absolute") == 0) {
-    // Write to servo
-    return;
-  }
-
-  if (strcmp(type, "rudder_relative") == 0) {    
-    // Write to servo, but use current rudder position
-    // to calculate the relative change
-    return;
-  }
-}
+const long SERVO_MIN = 1000L;
+const long SERVO_MAX = 2000L;
 
 void sendMessage(const char* type, const char* value) {
   const int kvCapacity = 512; // bytes
@@ -45,6 +36,44 @@ void sendMessage(const char* type, const char* value) {
   kvMessage["value"] = value;
 
   serializeJson(kvMessage, Serial);
+  Serial.print('\n');
+}
+
+int scale(int valueIn, long baseMin, long baseMax, int limitMin, int limitMax) {
+  return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
+}
+
+// ((2000 - 1000) * (0 - -90) / (90 - -90)) + 1000
+// ((1000 * 90) / 180) + 1000
+
+int rudderScale(const int degrees) {
+  return scale(degrees, RUDDER_RANGE_MIN, RUDDER_RANGE_MAX, SERVO_MIN, SERVO_MAX);
+}
+
+void rudderServoSelfTest() {
+  rudderServo.write(1000);
+  delay(1000);
+  rudderServo.write(1500);
+  delay(1000);
+  rudderServo.write(2000);
+  delay(1000);
+  rudderServo.write(1500);
+}
+
+// Rudder servo ranges from 1000 to 2000, with 1500 being center
+// We accept rudder values from -90 (hard to port) to 90 (hard to starboard)
+void dispatchCommand(const char* type, const int value) {
+  Serial.println((String)type + ": " + (String)value);
+  if (strcmp(type, "rudder_absolute") == 0) {
+    // Write to servo
+    int absoluteDegree = (int)value;
+    int absoluteMs = rudderScale(absoluteDegree);
+    rudderServo.write(absoluteMs);
+
+    Serial.println("Moving servo to " + (String)absoluteDegree + " degrees, " + (String)absoluteMs);
+    sendMessage(type, absoluteDegree);
+    return;
+  }
 }
 
 void sendMessage(const char* type, const String value) {
@@ -55,6 +84,7 @@ void sendMessage(const char* type, const String value) {
   kvMessage["value"] = value;
 
   serializeJson(kvMessage, Serial);
+  Serial.print('\n');
 }
 
 void sendMessage(const char* type, const float value) {
@@ -65,33 +95,36 @@ void sendMessage(const char* type, const float value) {
   kvMessage["value"] = value;
 
   serializeJson(kvMessage, Serial);
+  Serial.print('\n');
 }
-
 
 void setup()
 {
   Serial.begin(SERIAL_BAUD);
 
+  gpsSerial.begin(GPS_SERIAL_BAUD);
   sendMessage("message", "GPS started.");
-  nss.begin(GPS_SERIAL_BAUD);
 
-  sendMessage("message", "DHT started.");
   dht.begin();
+  sendMessage("message", "DHT started.");
 
-  sendMessage("message", "Onewire bus started.");
   oneWireSensors.begin();
+  sendMessage("message", "Onewire bus started.");
 
+  rudderServo.attach(RUDDER_SERVO_PIN);
+  rudderServoSelfTest();
+  sendMessage("message", "Rudder servo attached.");
 }
 
 void loop()
 {
   if (Serial.available()) {
-    const size_t capacity = JSON_OBJECT_SIZE(2) + 30;
+    const size_t capacity = 512;
     DynamicJsonDocument doc(capacity);
     DeserializationError err = deserializeJson(doc, Serial);
 
     if (!err) {
-      dispatchCommand(doc["type"], doc["value"].as<char*>());
+      dispatchCommand(doc["type"], doc["value"]);
     } else {
       sendMessage("error", err.c_str());
 
@@ -113,7 +146,7 @@ void loop()
   if (!isnan(humidity))
     sendMessage("humidity_rh", humidity);
 
-  String nmea = nss.readStringUntil('\r') + "\n";
+  String nmea = gpsSerial.readStringUntil('\r\n') + "\n";
   if (nmea.length() > 1) // More than just a newline?
     sendMessage("gps_nmea", nmea);
 }
