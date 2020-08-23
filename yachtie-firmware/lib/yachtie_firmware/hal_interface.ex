@@ -22,7 +22,17 @@ defmodule Yachtie.Firmware.HALInterface do
   end
 
   def handle_info({:circuits_uart, name, message}, %{port: port} = state) when name == port do
-    Logger.info(message)
+    case Jason.decode(message, keys: :atoms) do
+      {:ok, decoded} ->
+        send(self(), {:yachtie_hal, decoded})
+      {:error, error} -> Logger.error(Jason.DecodeError.message(error))
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info({:yachtie_hal, decoded}, state) when is_map(decoded) do
+    inspect(decoded) |> Logger.info()
     {:noreply, state}
   end
   
