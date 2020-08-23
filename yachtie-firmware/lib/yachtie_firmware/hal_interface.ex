@@ -15,6 +15,10 @@ defmodule Yachtie.Firmware.HALInterface do
     {:ok, state}
   end
 
+  def command(type, value) when is_binary(type) do
+    GenServer.cast(__MODULE__, {:command, %{type: type, value: value}})
+  end
+
   def handle_info(:init, %{port: port, speed: speed} = state) do
     {:ok, uart} = UART.start_link()
     :ok = UART.open(uart, port, speed: speed, framing: {Circuits.UART.Framing.Line, separator: "\n"})
