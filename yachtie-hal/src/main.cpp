@@ -99,7 +99,7 @@ void sendMessage(const char* type, const String value) {
 }
 
 void sendMessage(const char* type, const float value) {
-  const int kvCapacity = 512; // bytes
+  const int kvCapacity = 256; // bytes
   StaticJsonDocument<kvCapacity> kvMessage;
 
   kvMessage["type"] = type;
@@ -129,7 +129,7 @@ void setup()
 void loop()
 {
   if (Serial.available()) {
-    const size_t capacity = 512;
+    const size_t capacity = 256;
     DynamicJsonDocument doc(capacity);
     DeserializationError err = deserializeJson(doc, Serial);
 
