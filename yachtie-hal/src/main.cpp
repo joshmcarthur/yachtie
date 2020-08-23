@@ -76,7 +76,6 @@ void rudderServoSelfTest() {
 // Rudder servo ranges from 1000 to 2000, with 1500 being center
 // We accept rudder values from -90 (hard to port) to 90 (hard to starboard)
 void dispatchCommand(const char* type, const int value) {
-  Serial.println((String)type + ": " + (String)value);
   if (strcmp(type, "rudder_absolute") == 0) {
     // Write to servo
     int absoluteDegree = (int)value;
