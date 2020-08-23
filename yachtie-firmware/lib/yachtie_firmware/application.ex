@@ -15,6 +15,7 @@ defmodule Yachtie.Firmware.Application do
         # Children for all targets
         # Starts a worker by calling: Yachtie.Firmware.Worker.start_link(arg)
         # {Yachtie.Firmware.Worker, arg},
+        {Yachtie.Firmware.HALInterface, %{}}
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)
