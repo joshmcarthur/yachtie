@@ -7,7 +7,7 @@ defmodule Yachtie.FirmwareTest do
   end
 
   test "configures the expected JSON library" do
-    assert Application.get_env(:yachtie, :json_library) == Jason
+    assert Application.get_env(:phoenix, :json_library) == Jason
   end
 
   test "configures the web UI in the expected way" do
