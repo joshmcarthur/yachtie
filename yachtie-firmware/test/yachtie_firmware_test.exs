@@ -1,9 +1,9 @@
-defmodule YachtieFirmwareTest do
+defmodule Yachtie.FirmwareTest do
   use ExUnit.Case
-  doctest YachtieFirmware
+  doctest Yachtie.Firmware
 
   test "greets the world" do
-    assert YachtieFirmware.hello() == :world
+    assert Yachtie.Firmware.hello() == :world
   end
 
   test "configures the expected JSON library" do

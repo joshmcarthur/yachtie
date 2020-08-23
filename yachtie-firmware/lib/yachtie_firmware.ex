@@ -1,6 +1,6 @@
-defmodule YachtieFirmware do
+defmodule Yachtie.Firmware do
   @moduledoc """
-  Documentation for YachtieFirmware.
+  Documentation for Yachtie.Firmware.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule YachtieFirmware do
 
   ## Examples
 
-      iex> YachtieFirmware.hello
+      iex> Yachtie.Firmware.hello
       :world
 
   """

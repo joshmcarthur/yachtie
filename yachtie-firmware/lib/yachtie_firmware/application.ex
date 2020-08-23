@@ -1,4 +1,4 @@
-defmodule YachtieFirmware.Application do
+defmodule Yachtie.Firmware.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,13 +8,13 @@ defmodule YachtieFirmware.Application do
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: YachtieFirmware.Supervisor]
+    opts = [strategy: :one_for_one, name: Yachtie.Firmware.Supervisor]
 
     children =
       [
         # Children for all targets
-        # Starts a worker by calling: YachtieFirmware.Worker.start_link(arg)
-        # {YachtieFirmware.Worker, arg},
+        # Starts a worker by calling: Yachtie.Firmware.Worker.start_link(arg)
+        # {Yachtie.Firmware.Worker, arg},
       ] ++ children(target())
 
     Supervisor.start_link(children, opts)
@@ -24,16 +24,16 @@ defmodule YachtieFirmware.Application do
   def children(:host) do
     [
       # Children that only run on the host
-      # Starts a worker by calling: YachtieFirmware.Worker.start_link(arg)
-      # {YachtieFirmware.Worker, arg},
+      # Starts a worker by calling: Yachtie.Firmware.Worker.start_link(arg)
+      # {Yachtie.Firmware.Worker, arg},
     ]
   end
 
   def children(_target) do
     [
       # Children for all targets except host
-      # Starts a worker by calling: YachtieFirmware.Worker.start_link(arg)
-      # {YachtieFirmware.Worker, arg},
+      # Starts a worker by calling: Yachtie.Firmware.Worker.start_link(arg)
+      # {Yachtie.Firmware.Worker, arg},
     ]
   end
 

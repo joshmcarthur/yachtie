@@ -1,4 +1,4 @@
-defmodule YachtieFirmware.MixProject do
+defmodule Yachtie.Firmware.MixProject do
   use Mix.Project
 
   @app :yachtie_firmware
@@ -30,7 +30,7 @@ defmodule YachtieFirmware.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {YachtieFirmware.Application, []},
+      mod: {Yachtie.Firmware.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

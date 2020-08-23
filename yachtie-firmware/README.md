@@ -1,4 +1,4 @@
-# YachtieFirmware
+# Yachtie Firmware
 
 **TODO: Add description**
 
