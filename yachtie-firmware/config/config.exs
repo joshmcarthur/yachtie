@@ -35,8 +35,7 @@ config :yachtie, YachtieWeb.Endpoint,
   pubsub_server: Yachtie.PubSub,
   code_reloader: false
 
-config :yachtie, :json_library, Jason
-config :yachtie, :json_decoder, Jason
+config :phoenix, :json_library, Jason
 
 if Mix.target() != :host do
   import_config "target.exs"
