@@ -50,14 +50,27 @@ int rudderScale(const int degrees) {
   return scale(degrees, RUDDER_RANGE_MIN, RUDDER_RANGE_MAX, SERVO_MIN, SERVO_MAX);
 }
 
+int rotateRudder(int ms) {
+  // Attach the servo
+  rudderServo.attach(RUDDER_SERVO_PIN);
+  delay(100);
+
+  // Rotate the servo
+  rudderServo.write(ms);
+
+  delay(100);
+  // Detach the servo to reduce jitter
+  rudderServo.detach();
+}
+
 void rudderServoSelfTest() {
-  rudderServo.write(1000);
+  rotateRudder(1000);
   delay(1000);
-  rudderServo.write(1500);
+  rotateRudder(1500);
   delay(1000);
-  rudderServo.write(2000);
+  rotateRudder(2000);
   delay(1000);
-  rudderServo.write(1500);
+  rotateRudder(1500);
 }
 
 // Rudder servo ranges from 1000 to 2000, with 1500 being center
@@ -68,9 +81,8 @@ void dispatchCommand(const char* type, const int value) {
     // Write to servo
     int absoluteDegree = (int)value;
     int absoluteMs = rudderScale(absoluteDegree);
-    rudderServo.write(absoluteMs);
+    rotateRudder(absoluteMs);
 
-    Serial.println("Moving servo to " + (String)absoluteDegree + " degrees, " + (String)absoluteMs);
     sendMessage(type, absoluteDegree);
     return;
   }
@@ -111,7 +123,6 @@ void setup()
   oneWireSensors.begin();
   sendMessage("message", "Onewire bus started.");
 
-  rudderServo.attach(RUDDER_SERVO_PIN);
   rudderServoSelfTest();
   sendMessage("message", "Rudder servo attached.");
 }
