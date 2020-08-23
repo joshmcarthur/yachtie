@@ -5,13 +5,16 @@ defmodule Yachtie.Firmware.HALInterface do
   require Logger
 
   def start_link(state \\ %{}) do
-    state = state |> Map.put_new(:port, "ttyAMA0")
-                  |> Map.put_new(:speed, 115200)
+    state =
+      state
+      |> Map.put_new(:port, "ttyAMA0")
+      |> Map.put_new(:speed, 115_200)
+
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
   def init(state) do
-    send self(), :init
+    send(self(), :init)
     {:ok, state}
   end
 
@@ -21,7 +24,10 @@ defmodule Yachtie.Firmware.HALInterface do
 
   def handle_info(:init, %{port: port, speed: speed} = state) do
     {:ok, uart} = UART.start_link()
-    :ok = UART.open(uart, port, speed: speed, framing: {Circuits.UART.Framing.Line, separator: "\n"})
+
+    :ok =
+      UART.open(uart, port, speed: speed, framing: {Circuits.UART.Framing.Line, separator: "\n"})
+
     {:noreply, state |> Map.put(:uart, uart)}
   end
 
@@ -29,7 +35,9 @@ defmodule Yachtie.Firmware.HALInterface do
     case Jason.decode(message, keys: :atoms) do
       {:ok, decoded} ->
         send(self(), {:yachtie_hal, decoded})
-      {:error, error} -> Logger.error(Jason.DecodeError.message(error))
+
+      {:error, error} ->
+        Logger.error(Jason.DecodeError.message(error))
     end
 
     {:noreply, state}
@@ -39,7 +47,7 @@ defmodule Yachtie.Firmware.HALInterface do
     inspect(decoded) |> Logger.info()
     {:noreply, state}
   end
-  
+
   def handle_info(_msg, state) do
     {:noreply, state}
   end
