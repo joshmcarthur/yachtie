@@ -3,14 +3,9 @@
 #include "DHT.h"
 #include "ServoTimer2.h"
 #include "AltSoftSerial.h"
-#include "OneWire.h"
-#include "DallasTemperature.h"
 
 #define DHTPIN 12
-#define GPS_RX_PIN 3
-#define GPS_TX_PIN 4
 #define GPS_SERIAL_BAUD 9600
-#define ONEWIRE_BUS_PIN 11
 #define RUDDER_SERVO_PIN 2
 
 #define DHTTYPE DHT11
@@ -21,9 +16,7 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 ServoTimer2 rudderServo;
-AltSoftSerial gpsSerial;
-OneWire oneWire(ONEWIRE_BUS_PIN);
-DallasTemperature oneWireSensors(&oneWire);
+AltSoftSerial gpsSerial; // MUST receive on pin 8
 
 const long SERVO_MIN = 1000L;
 const long SERVO_MAX = 2000L;
@@ -99,7 +92,7 @@ void sendMessage(const char* type, const String value) {
 }
 
 void sendMessage(const char* type, const float value) {
-  const int kvCapacity = 256; // bytes
+  const int kvCapacity = 512; // bytes
   StaticJsonDocument<kvCapacity> kvMessage;
 
   kvMessage["type"] = type;
@@ -118,9 +111,6 @@ void setup()
 
   dht.begin();
   sendMessage("message", "DHT started.");
-
-  oneWireSensors.begin();
-  sendMessage("message", "Onewire bus started.");
 
   rudderServoSelfTest();
   sendMessage("message", "Rudder servo attached.");
