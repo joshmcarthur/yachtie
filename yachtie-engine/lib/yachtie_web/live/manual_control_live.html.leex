@@ -5,11 +5,9 @@
       class="form-control-range"
       type="range"
       name="rudder[degrees]"
-      min="-20"
-      max="20"
-      step="1"
+      min="-90"
+      max="90"
       phx-change="rudder"
-      phx-throttle="500"
       value="<%= @rudder %>"
     />
     <div class="form-help"><%= @rudder %> degrees</div>
@@ -21,15 +19,47 @@
       <div class="col-sm">
         <div class="form-group">
           <label for="latitude">Latitude:</label>
-          <input class="form-control" value="<%= @location && Map.get(@location, :latitude) %>" readonly />
+          <input class="form-control" value="<%= is_list(@location) && @location |> List.first %>" readonly />
         </div>
       </div>
       <div class="col-sm">
         <div class="form-group">
           <label for="longitude">Longitude:</label>
-          <input class="form-control" value="<%= @location && Map.get(@location, :longitude) %>" readonly />
+          <input class="form-control" value="<%= is_list(@location) && @location |> List.last %>" readonly />
+        </div>
+      </div>
+
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="speed">Speed (kn):</label>
+          <input class="form-control" value="<%= @speed_knots %>" readonly />
         </div>
       </div>
     </div>
   </fieldset>
+
+  <fieldset>
+    <legend>Sensors</legend>
+    <div class="row">
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="temperatue">Temperature:</label>
+          <input class="form-control" value="<%= @temperature %>" readonly />
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="form-group">
+          <label for="humidity">Humidity:</label>
+          <input readonly class="form-control" value="<%= @humidity %>" readonly />
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <code>
+    Satellites: <%= @satellites %><br />
+    Course: <%= @course_degrees && "#{@course_degrees}°" %><br />
+    Fix age: <%= @fix_age && "#{@fix_age}ms" %><br />
+    <%= @last_nmea %>
+  </code>
 </form>
