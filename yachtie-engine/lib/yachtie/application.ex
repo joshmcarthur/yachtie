@@ -13,7 +13,6 @@ defmodule Yachtie.Application do
       {Phoenix.PubSub, name: Yachtie.PubSub},
       # Starts a worker by calling: Yachtie.Worker.start_link(arg)
       # {Yachtie.Worker, arg},
-      Yachtie.Location.State,
       Yachtie.Rudder.State
     ]
 
