@@ -82,20 +82,21 @@ defmodule Yachtie.Firmware.HALInterface do
     broadcast since, without seeing the shape of the data, we can't see what the
     effect could or should be.
   """
-  def handle_info({:yachtie_hal, decoded}, state) when is_map(decoded) do
-    inspect(decoded) |> Logger.info()
-    {:noreply, state}
-  end
+  # def handle_info({:yachtie_hal, decoded}, state) do
+  #   inspect(decoded) |> Logger.info()
+  #   {:noreply, state}
+  # end
 
   @doc """
     For any simple key-value measurement, broadcast the type and value as a
     channel topic, with the message being the value. 
   """
   def handle_info({:yachtie_hal, %{type: type, value: value}}, state) do
-    PubSub.broadcast(Yachtie.PubSub, type, value)
+    PubSub.broadcast(Yachtie.PubSub, "measurement", {String.to_atom(type), value})
 
     {:noreply, state}
   end
+
 
   @doc """
     Handle unknown messages with a no-op. This prevents the GenServer from
