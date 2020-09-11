@@ -3,6 +3,7 @@
 #include "DHT.h"
 #include "ServoTimer2.h"
 #include "AltSoftSerial.h"
+#include "TinyGPS++.h"
 
 #define DHTPIN 12
 #define GPS_SERIAL_BAUD 9600
@@ -17,9 +18,13 @@
 DHT dht(DHTPIN, DHTTYPE);
 ServoTimer2 rudderServo;
 AltSoftSerial gpsSerial; // MUST receive on pin 8
+TinyGPSPlus gps;
 
 const long SERVO_MIN = 1000L;
 const long SERVO_MAX = 2000L;
+
+float lastTemp = NAN;
+float lastHumidity = NAN;
 
 void sendMessage(const char* type, const char* value) {
   const int kvCapacity = 512; // bytes
@@ -140,13 +145,41 @@ void loop()
   // Read temperature as Celsius (the default)
   float temperature = dht.readTemperature();
 
-  if (!isnan(temperature))
-    sendMessage("temperature_celsius", temperature);
+  if (!isnan(temperature) && temperature != lastTemp) {
+    lastTemp = temperature;
+    sendMessage("temperature_celsius", lastTemp);
+  }
 
-  if (!isnan(humidity))
-    sendMessage("humidity_rh", humidity);
+  if (!isnan(humidity) && humidity != lastHumidity) {
+    lastHumidity = humidity;
+    sendMessage("humidity_rh", lastHumidity);
+  }
 
-  String nmea = gpsSerial.readStringUntil('\r\n') + "\n";
-  if (nmea.length() > 1) // More than just a newline?
-    sendMessage("gps_nmea", nmea);
+  while (gpsSerial.available()) 
+    gps.encode(gpsSerial.read());
+
+  if (gps.satellites.isUpdated()) 
+    sendMessage("gps_satellites", gps.satellites.value());
+  
+
+  if (gps.speed.isUpdated()) 
+    sendMessage("gps_speed", gps.speed.knots());
+  
+  if (gps.course.isUpdated()) 
+    sendMessage("gps_course", gps.course.deg());
+
+  if (gps.hdop.isUpdated() && gps.satellites.value() > 0) 
+    sendMessage("gps_hdop", gps.hdop.value());
+
+  if (gps.location.isUpdated()) {
+    String latlng = "";
+    latlng.concat(String(gps.location.lat(), 10));
+    latlng.concat(",");
+    latlng.concat(String(gps.location.lng(), 10));
+    sendMessage("gps_location", latlng);
+  } else if (gps.location.isValid()) {
+    sendMessage("gps_location_age", gps.location.age());
+  }
+
+  delay(250);
 }
