@@ -82,6 +82,7 @@ defmodule Yachtie.Firmware.HALInterface do
     broadcast since, without seeing the shape of the data, we can't see what the
     effect could or should be.
   """
+
   # def handle_info({:yachtie_hal, decoded}, state) do
   #   inspect(decoded) |> Logger.info()
   #   {:noreply, state}
@@ -96,7 +97,6 @@ defmodule Yachtie.Firmware.HALInterface do
 
     {:noreply, state}
   end
-
 
   @doc """
     Handle unknown messages with a no-op. This prevents the GenServer from
