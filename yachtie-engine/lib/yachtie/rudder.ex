@@ -4,8 +4,8 @@ defmodule Yachtie.Rudder.State do
 
   @pubsub_application Yachtie.PubSub
   @pubsub_topic "rudder"
-  @max_rudder 20
-  @min_rudder -20
+  @max_rudder 90
+  @min_rudder -90
   @default_rudder 0
 
   def start_link(_args) do
@@ -21,6 +21,7 @@ defmodule Yachtie.Rudder.State do
   end
 
   def set(degrees) when @min_rudder <= degrees and degrees <= @max_rudder do
+    Yachtie.Firmware.HALInterface.command("rudder_absolute", degrees)
     PubSub.broadcast(@pubsub_application, topic(), {:rudder, degrees})
     Agent.update(__MODULE__, fn old_val -> degrees end)
   end
